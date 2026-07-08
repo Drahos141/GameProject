@@ -37,6 +37,6 @@ Once those animations contain frames, they will play automatically. Until then, 
 ## Included Test Art
 Basic temporary sprites are included so you can test movement right away:
 - Player directional states in `assets/player/`
-- Object sprites in `assets/objects/` (trees, rocks, crates)
+- Object sprites in `assets/objects/` (trees, rocks, boxes)
 
 The main scene already places a few objects around the player so it is easy to see movement across the map.

@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="Script" path="res://scripts/player.gd" id="1_xf71q"]
 [ext_resource type="Texture2D" path="res://assets/player/idle_down.svg" id="2_pd1"]
@@ -11,7 +11,10 @@
 [ext_resource type="Texture2D" path="res://assets/player/walk_right.svg" id="9_pwr1"]
 [ext_resource type="Texture2D" path="res://assets/objects/tree.svg" id="10_tree"]
 [ext_resource type="Texture2D" path="res://assets/objects/rock.svg" id="11_rock"]
-[ext_resource type="Texture2D" path="res://assets/objects/crate.svg" id="12_crate"]
+[ext_resource type="Texture2D" path="res://assets/objects/box.svg" id="12_crate"]
+[ext_resource type="Texture2D" path="res://assets/objects/grass1.jpg" id="13_grass1"]
+[ext_resource type="Texture2D" path="res://assets/objects/grass2.jpg" id="14_grass2"]
+[ext_resource type="Texture2D" path="res://assets/objects/firePlace.png" id="15_fire"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_r2axr"]
 radius = 12.0
@@ -108,6 +111,21 @@ texture = ExtResource("12_crate")
 [node name="CrateB" type="Sprite2D" parent="."]
 position = Vector2(640, 540)
 texture = ExtResource("12_crate")
+
+[node name="GrassPatchA" type="Sprite2D" parent="."]
+position = Vector2(520, 360)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("13_grass1")
+
+[node name="GrassPatchB" type="Sprite2D" parent="."]
+position = Vector2(760, 360)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("14_grass2")
+
+[node name="FirePlaceA" type="Sprite2D" parent="."]
+position = Vector2(640, 460)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("15_fire")
 
 [node name="Player" type="CharacterBody2D" parent="."]
 position = Vector2(640, 360)
