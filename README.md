@@ -33,3 +33,10 @@ Create a `SpriteFrames` resource on `Player/AnimatedSprite2D` and add these anim
 - `walk_right`
 
 Once those animations contain frames, they will play automatically. Until then, the placeholder triangle (`Player/Body`) stays visible.
+
+## Included Test Art
+Basic temporary sprites are included so you can test movement right away:
+- Player directional states in `assets/player/`
+- Object sprites in `assets/objects/` (trees, rocks, crates)
+
+The main scene already places a few objects around the player so it is easy to see movement across the map.
