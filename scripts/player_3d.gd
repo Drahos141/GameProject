@@ -33,8 +33,10 @@ func _ready() -> void:
 	if main_node:
 		map_ui = main_node.get_node_or_null("MapUI")
 	
+	print("Player ready - position: ", position)
 	_generate_random_grass()
 	_load_map()
+	print("Game initialized successfully")
 
 
 func _generate_random_grass() -> void:

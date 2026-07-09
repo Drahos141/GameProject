@@ -55,13 +55,13 @@ shape = SubResource("CapsuleShape3D_player")
 [node name="Sprite3D" type="Sprite3D" parent="Player"]
 texture = ExtResource("2_pd1")
 billboard = 2
-pixel_size = 0.025
-scale = Vector3(2, 2, 1)
+pixel_size = 0.05
+scale = Vector3(3, 3, 1)
 
 [node name="Camera3D" type="Camera3D" parent="Player"]
-position = Vector3(5, 12, 5)
-rotation = Vector3(-0.8, 0.785, 0)
-fov = 60.0
+position = Vector3(6, 6, 6)
+rotation = Vector3(-0.615, 0.785, 0)
+fov = 65.0
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="Player/Camera3D"]
 energy_multiplier = 0.3
