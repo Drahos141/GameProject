@@ -4,9 +4,6 @@ extends CharacterBody3D
 var is_moving = false
 var last_direction = Vector3.ZERO
 
-@onready var sprite = $Sprite
-@onready var camera = $Camera
-
 func _ready() -> void:
 	print("Player initialized at position: ", position)
 	print("Controls: WASD or Arrow Keys to move, M for map")
@@ -49,11 +46,9 @@ func _physics_process(delta: float) -> void:
 	# Apply movement
 	velocity.x = input_vector.x * speed
 	velocity.z = input_vector.z * speed
-	velocity.y = 0  # No vertical movement
+	velocity.y = 0
 	
 	move_and_slide()
 	
 	if is_moving:
 		print("Position: ", position)
-		# Camera follows player smoothly
-		camera.global_position = global_position + Vector3(5, 8, 5)
