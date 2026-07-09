@@ -1,0 +1,143 @@
+[gd_scene format=3 uid="uid://d1j3ljf87gghk_2d_backup"]
+
+[ext_resource type="Script" uid="uid://dt86eypud1is4" path="res://scripts/player.gd" id="1_xf71q"]
+[ext_resource type="Texture2D" uid="uid://do0x8ck5d42kg" path="res://assets/player/idle_down.svg" id="2_pd1"]
+[ext_resource type="Texture2D" uid="uid://cbyr0cnjcsuqf" path="res://assets/player/idle_up.svg" id="3_pu1"]
+[ext_resource type="Texture2D" uid="uid://cp86gqbxj6kpn" path="res://assets/player/idle_left.svg" id="4_pl1"]
+[ext_resource type="Texture2D" uid="uid://cudx71i5ot2d8" path="res://assets/player/idle_right.svg" id="5_pr1"]
+[ext_resource type="Texture2D" uid="uid://3bna2gwf4d75" path="res://assets/player/walk_down.svg" id="6_pwd1"]
+[ext_resource type="Texture2D" uid="uid://bi4hknxbo1mlb" path="res://assets/player/walk_up.svg" id="7_pwu1"]
+[ext_resource type="Texture2D" uid="uid://dm4b8ticpit5d" path="res://assets/player/walk_left.svg" id="8_pwl1"]
+[ext_resource type="Texture2D" uid="uid://b1gimtb1l6ook" path="res://assets/player/walk_right.svg" id="9_pwr1"]
+[ext_resource type="Texture2D" path="res://assets/objects/grass1.png" id="13_grass1"]
+[ext_resource type="Texture2D" path="res://assets/objects/grass2.png" id="14_grass2"]
+[ext_resource type="Texture2D" uid="uid://x8jb0ju761wn" path="res://assets/objects/firePlace.png" id="15_fire"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_r2axr"]
+radius = 12.0
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_player"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_pd1")
+}],
+"loop": 1,
+"name": &"idle_down",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("4_pl1")
+}],
+"loop": 1,
+"name": &"idle_left",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("5_pr1")
+}],
+"loop": 1,
+"name": &"idle_right",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_pu1")
+}],
+"loop": 1,
+"name": &"idle_up",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("6_pwd1")
+}],
+"loop": 1,
+"name": &"walk_down",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("8_pwl1")
+}],
+"loop": 1,
+"name": &"walk_left",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("9_pwr1")
+}],
+"loop": 1,
+"name": &"walk_right",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("7_pwu1")
+}],
+"loop": 1,
+"name": &"walk_up",
+"speed": 8.0
+}]
+
+[node name="Main" type="Node2D" unique_id=1454210547]
+
+[node name="GrassPatchA" type="Sprite2D" parent="." unique_id=377331877]
+position = Vector2(474, 303.99997)
+scale = Vector2(0.1643059, 0.19841266)
+texture = ExtResource("13_grass1")
+
+[node name="GrassPatchA" type="Sprite2D" parent="GrassPatchA" unique_id=473670159]
+position = Vector2(833.81067, -1134.0001)
+scale = Vector2(0.825584, 0.650105)
+texture = ExtResource("13_grass1")
+
+[node name="GrassPatchB" type="Sprite2D" parent="." unique_id=1430789582]
+position = Vector2(811, 236)
+scale = Vector2(0.15779221, 0.2070922)
+texture = ExtResource("14_grass2")
+
+[node name="GrassPatchB" type="Sprite2D" parent="GrassPatchB" unique_id=1609191251]
+position = Vector2(88.72424, 540.822)
+scale = Vector2(0.92189014, 0.854809)
+texture = ExtResource("14_grass2")
+
+[node name="FirePlaceA" type="Sprite2D" parent="." unique_id=1760660255]
+position = Vector2(642.00006, 274)
+scale = Vector2(0.17201835, 0.15117994)
+texture = ExtResource("15_fire")
+
+[node name="Player" type="CharacterBody2D" parent="." unique_id=45426553]
+position = Vector2(640, 360)
+script = ExtResource("1_xf71q")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player" unique_id=673216862]
+shape = SubResource("CircleShape2D_r2axr")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Player" unique_id=1782790547]
+sprite_frames = SubResource("SpriteFrames_player")
+animation = &"idle_down"
+
+[node name="Body" type="Polygon2D" parent="Player" unique_id=1168855261]
+color = Color(0.1, 0.1, 0.1, 1)
+polygon = PackedVector2Array(0, -14, 10, 10, -10, 10)
+
+[node name="Camera2D" type="Camera2D" parent="Player" unique_id=42024446]
+
+[node name="GrassPatchA2" type="Sprite2D" parent="." unique_id=1699070523]
+position = Vector2(833.81067, -1134.0001)
+scale = Vector2(0.825584, 0.650105)
+texture = ExtResource("13_grass1")
+
+[node name="GrassPatchA3" type="Sprite2D" parent="." unique_id=219604931]
+position = Vector2(1027, 598)
+scale = Vector2(0.1643059, 0.19841266)
+texture = ExtResource("13_grass1")
+
+[node name="GrassPatchA" type="Sprite2D" parent="GrassPatchA3" unique_id=2062819584]
+position = Vector2(833.81067, -1134.0001)
+scale = Vector2(0.825584, 0.650105)
+texture = ExtResource("13_grass1")
