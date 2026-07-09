@@ -101,12 +101,16 @@ func _physics_process(_delta: float) -> void:
 	# Support WASD keys
 	if Input.is_key_pressed(KEY_A):
 		move_input.x -= 1.0
+		print("KEY A pressed")
 	if Input.is_key_pressed(KEY_D):
 		move_input.x += 1.0
+		print("KEY D pressed")
 	if Input.is_key_pressed(KEY_W):
 		move_input.z -= 1.0
+		print("KEY W pressed")
 	if Input.is_key_pressed(KEY_S):
 		move_input.z += 1.0
+		print("KEY S pressed")
 
 	# Normalize and apply speed
 	move_input = move_input.normalized()
@@ -115,7 +119,7 @@ func _physics_process(_delta: float) -> void:
 	
 	# Debug output
 	if move_input.length() > 0:
-		print("Moving: ", move_input, " Velocity: ", velocity)
+		print("Moving: ", move_input, " Velocity: ", velocity, " Position: ", position)
 
 	move_and_slide()
 	_update_animation(move_input)

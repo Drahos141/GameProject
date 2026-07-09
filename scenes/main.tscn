@@ -45,31 +45,31 @@ material = SubResource("StandardMaterial3D_ground")
 
 [node name="FirePlace" type="Sprite3D" parent="."]
 position = Vector3(0, 0.5, -5)
-scale = Vector3(2, 2, 1)
+scale = Vector3(1, 1, 1)
 texture = ExtResource("15_fire")
 billboard = 2
 
 [node name="GrassPatch1" type="Sprite3D" parent="."]
 position = Vector3(-8, 0.5, -8)
-scale = Vector3(2, 1.5, 1)
+scale = Vector3(1.2, 1, 1)
 texture = ExtResource("13_grass1")
 billboard = 2
 
 [node name="GrassPatch2" type="Sprite3D" parent="."]
 position = Vector3(8, 0.5, -8)
-scale = Vector3(2, 1.5, 1)
+scale = Vector3(1.2, 1, 1)
 texture = ExtResource("14_grass2")
 billboard = 2
 
 [node name="GrassPatch3" type="Sprite3D" parent="."]
 position = Vector3(-8, 0.5, 8)
-scale = Vector3(2, 1.5, 1)
+scale = Vector3(1.2, 1, 1)
 texture = ExtResource("13_grass1")
 billboard = 2
 
 [node name="GrassPatch4" type="Sprite3D" parent="."]
 position = Vector3(8, 0.5, 8)
-scale = Vector3(2, 1.5, 1)
+scale = Vector3(1.2, 1, 1)
 texture = ExtResource("14_grass2")
 billboard = 2
 
