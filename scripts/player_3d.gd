@@ -3,9 +3,11 @@ extends CharacterBody3D
 @export var speed: float = 5.0
 
 @onready var sprite_3d: Sprite3D = $Sprite3D
+@onready var map_ui: CanvasLayer = get_tree().root.get_node("Main/MapUI")
 
 var facing_direction: String = "down"
 var current_animation: String = "idle_down"
+var map_visible: bool = false
 
 # Animation mapping for 3D (using sprite sheets or individual textures)
 var animation_textures = {
@@ -19,7 +21,56 @@ var animation_textures = {
 	"walk_right": preload("res://assets/player/walk_right.svg"),
 }
 
+# Grass textures for random generation
+var grass_textures = [
+	preload("res://assets/objects/grass1.png"),
+	preload("res://assets/objects/grass2.png"),
+]
+
+func _ready() -> void:
+	_generate_random_grass()
+	_load_map()
+
+
+func _generate_random_grass() -> void:
+	var grass_container = get_tree().root.get_node("Main/GrassContainer")
+	var world_size = 100
+	var grass_count = 50
+	var min_distance_from_center = 3.0
+	
+	for i in range(grass_count):
+		var x = randf_range(-world_size / 2, world_size / 2)
+		var z = randf_range(-world_size / 2, world_size / 2)
+		
+		# Avoid spawning too close to center (player start position)
+		if sqrt(x * x + z * z) < min_distance_from_center:
+			continue
+		
+		var grass = Sprite3D.new()
+		grass.position = Vector3(x, 0.5, z)
+		grass.scale = Vector3(randf_range(1.5, 2.2), randf_range(1.2, 1.5), 1)
+		grass.texture = grass_textures[randi() % grass_textures.size()]
+		grass.billboard = Sprite3D.BILLBOARD_ENABLED
+		grass_container.add_child(grass)
+
+
+func _load_map() -> void:
+	# Try to load map texture - create a simple placeholder if it doesn't exist
+	var map_path = "res://assets/map.png"
+	if ResourceLoader.exists(map_path):
+		var map_texture = load(map_path)
+		var map_rect = map_ui.get_node("MapPanel/MapTexture")
+		map_rect.texture = map_texture
+	else:
+		print("Map file not found at: ", map_path)
+
+
 func _physics_process(_delta: float) -> void:
+	# Check for map toggle
+	if Input.is_action_just_pressed("ui_accept"):  # Space key
+		if Input.is_key_pressed(KEY_M):
+			_toggle_map()
+	
 	# Get movement input
 	var move_input := Vector3(
 		Input.get_action_strength("ui_right") - Input.get_action_strength("ui_left"),
@@ -61,6 +112,11 @@ func _update_animation(move_input: Vector3) -> void:
 		current_animation = animation_name
 		if animation_name in animation_textures:
 			sprite_3d.texture = animation_textures[animation_name]
+
+
+func _toggle_map() -> void:
+	map_visible = !map_visible
+	map_ui.visible = map_visible
 
 
 func _direction_from_vector(move_input: Vector3) -> String:

@@ -21,13 +21,18 @@ height = 1.8
 diffuse_mode = 3
 albedo_color = Color(0.4, 0.7, 0.3, 1)
 
-[sub_resource type="PlaneMesh" id="PlaneMesh_ground"]
-material = SubResource("StandardMaterial3D_ground")
-size = Vector2(30, 30)
+[sub_resource type="Environment" id="Environment_white"]
+ambient_light_source = 1
+ambient_light_energy = 2.0
+ambient_light_sky_contribution = 0.0
+ambient_light_energy_multiplier = 1.0
+background_mode = 0
+background_color = Color(1, 1, 1, 1)
 
 [node name="Main" type="Node3D"]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_white")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 rotation = Vector3(-0.3, 0.3, 0)
@@ -38,35 +43,7 @@ position = Vector3(0, -0.1, 0)
 size = Vector3(100, 0.2, 100)
 material = SubResource("StandardMaterial3D_ground")
 
-[node name="GrassPatch1" type="Sprite3D" parent="."]
-position = Vector3(-15, 0.5, -15)
-scale = Vector3(2, 1.5, 1)
-texture = ExtResource("13_grass1")
-billboard = 2
 
-[node name="GrassPatch2" type="Sprite3D" parent="."]
-position = Vector3(15, 0.5, -10)
-scale = Vector3(1.8, 1.3, 1)
-texture = ExtResource("14_grass2")
-billboard = 2
-
-[node name="GrassPatch3" type="Sprite3D" parent="."]
-position = Vector3(20, 0.5, 15)
-scale = Vector3(2, 1.5, 1)
-texture = ExtResource("13_grass1")
-billboard = 2
-
-[node name="GrassPatch4" type="Sprite3D" parent="."]
-position = Vector3(-20, 0.5, 12)
-scale = Vector3(1.8, 1.3, 1)
-texture = ExtResource("14_grass2")
-billboard = 2
-
-[node name="FirePlace" type="Sprite3D" parent="."]
-position = Vector3(0, 0.5, -8)
-scale = Vector3(1.5, 1.5, 1)
-texture = ExtResource("15_fire")
-billboard = 2
 
 [node name="Player" type="CharacterBody3D" parent="."]
 position = Vector3(0, 0, 0)
@@ -81,9 +58,29 @@ billboard = 2
 pixel_size = 0.01
 
 [node name="Camera3D" type="Camera3D" parent="Player"]
-position = Vector3(6, 10, 6)
+position = Vector3(8, 25, 8)
 rotation = Vector3(-0.785, 0.785, 0)
 fov = 50.0
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="Player/Camera3D"]
 energy_multiplier = 0.3
+
+[node name="GrassContainer" type="Node3D" parent="."]
+
+[node name="MapUI" type="CanvasLayer" parent="."]
+visible = false
+layer = 10
+
+[node name="MapPanel" type="PanelContainer" parent="MapUI"]
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 340.0
+offset_bottom = 340.0
+
+[node name="MapTexture" type="TextureRect" parent="MapUI/MapPanel"]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+expand_mode = 1
+stretch_mode = 0
