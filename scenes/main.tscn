@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://d1j3ljf87gghk"]
 
-[ext_resource type="Script" path="res://scripts/player_simple.gd" id="1_player"]
+[ext_resource type="Script" path="res://scripts/player_simple_fixed.gd" id="1_player"]
 [ext_resource type="Texture2D" uid="uid://do0x8ck5d42kg" path="res://assets/player/idle_down.svg" id="2_pd1"]
 [ext_resource type="Texture2D" path="res://assets/objects/grass1.png" id="3_grass1"]
 [ext_resource type="Texture2D" path="res://assets/objects/grass2.png" id="4_grass2"]
@@ -12,7 +12,7 @@ height = 1.6
 
 [sub_resource type="StandardMaterial3D" id="Material_ground"]
 diffuse_mode = 3
-albedo_color = Color(0.4, 0.7, 0.3, 1)
+albedo_color = Color(1, 1, 1, 1)
 
 [sub_resource type="Environment" id="Env_1"]
 ambient_light_source = 1
@@ -31,7 +31,7 @@ energy_multiplier = 2.0
 
 [node name="Ground" type="CSGBox3D" parent="."]
 position = Vector3(0, -0.1, 0)
-size = Vector3(100, 0.2, 100)
+size = Vector3(500, 0.2, 500)
 material = SubResource("Material_ground")
 
 [node name="FirePlace" type="Sprite3D" parent="."]
@@ -81,3 +81,47 @@ scale = Vector3(3, 3, 1)
 position = Vector3(5, 8, 5)
 rotation = Vector3(-0.5, 0.785, 0)
 fov = 70.0
+
+[node name="UI" type="CanvasLayer" parent="."]
+layer = 100
+
+[node name="MinimapButton" type="Button" parent="UI"]
+anchors_left = 1.0
+anchors_top = 0.0
+anchors_right = 1.0
+anchors_bottom = 0.0
+offset_left = -120.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = 60.0
+text = "Map"
+
+[node name="MinimapPanel" type="Panel" parent="UI"]
+visible = false
+anchors_left = 0.5
+anchors_top = 0.5
+anchors_right = 0.5
+anchors_bottom = 0.5
+offset_left = -200.0
+offset_top = -200.0
+offset_right = 200.0
+offset_bottom = 200.0
+
+[node name="MinimapImage" type="TextureRect" parent="UI/MinimapPanel"]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+expand_mode = 1
+stretch_mode = 0
+
+[node name="CloseButton" type="Button" parent="UI/MinimapPanel"]
+anchors_left = 1.0
+anchors_top = 0.0
+anchors_right = 1.0
+anchors_bottom = 0.0
+offset_left = -30.0
+offset_top = 5.0
+offset_right = -5.0
+offset_bottom = 30.0
+text = "X"
