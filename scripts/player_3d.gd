@@ -1,6 +1,6 @@
 extends CharacterBody3D
 
-@export var speed: float = 5.0
+@export var speed: float = 10.0
 
 @onready var sprite_3d: Sprite3D = $Sprite3D
 
@@ -34,7 +34,8 @@ func _ready() -> void:
 		map_ui = main_node.get_node_or_null("MapUI")
 	
 	print("Player ready - position: ", position)
-	_generate_random_grass()
+	# Temporarily disable grass generation for debugging
+	# _generate_random_grass()
 	_load_map()
 	print("Game initialized successfully")
 
@@ -111,6 +112,10 @@ func _physics_process(_delta: float) -> void:
 	move_input = move_input.normalized()
 	velocity.x = move_input.x * speed
 	velocity.z = move_input.z * speed
+	
+	# Debug output
+	if move_input.length() > 0:
+		print("Moving: ", move_input, " Velocity: ", velocity)
 
 	move_and_slide()
 	_update_animation(move_input)

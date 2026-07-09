@@ -43,6 +43,36 @@ position = Vector3(0, -0.1, 0)
 size = Vector3(100, 0.2, 100)
 material = SubResource("StandardMaterial3D_ground")
 
+[node name="FirePlace" type="Sprite3D" parent="."]
+position = Vector3(0, 0.5, -5)
+scale = Vector3(2, 2, 1)
+texture = ExtResource("15_fire")
+billboard = 2
+
+[node name="GrassPatch1" type="Sprite3D" parent="."]
+position = Vector3(-8, 0.5, -8)
+scale = Vector3(2, 1.5, 1)
+texture = ExtResource("13_grass1")
+billboard = 2
+
+[node name="GrassPatch2" type="Sprite3D" parent="."]
+position = Vector3(8, 0.5, -8)
+scale = Vector3(2, 1.5, 1)
+texture = ExtResource("14_grass2")
+billboard = 2
+
+[node name="GrassPatch3" type="Sprite3D" parent="."]
+position = Vector3(-8, 0.5, 8)
+scale = Vector3(2, 1.5, 1)
+texture = ExtResource("13_grass1")
+billboard = 2
+
+[node name="GrassPatch4" type="Sprite3D" parent="."]
+position = Vector3(8, 0.5, 8)
+scale = Vector3(2, 1.5, 1)
+texture = ExtResource("14_grass2")
+billboard = 2
+
 
 
 [node name="Player" type="CharacterBody3D" parent="."]
@@ -59,9 +89,9 @@ pixel_size = 0.05
 scale = Vector3(3, 3, 1)
 
 [node name="Camera3D" type="Camera3D" parent="Player"]
-position = Vector3(6, 6, 6)
-rotation = Vector3(-0.615, 0.785, 0)
-fov = 65.0
+position = Vector3(4, 5, 4)
+rotation = Vector3(-0.464, 0.785, 0)
+fov = 70.0
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="Player/Camera3D"]
 energy_multiplier = 0.3
