@@ -3,11 +3,11 @@ extends CharacterBody3D
 @export var speed: float = 5.0
 
 @onready var sprite_3d: Sprite3D = $Sprite3D
-@onready var map_ui: CanvasLayer = get_tree().root.get_node("Main/MapUI")
 
 var facing_direction: String = "down"
 var current_animation: String = "idle_down"
 var map_visible: bool = false
+var map_ui: CanvasLayer
 
 # Animation mapping for 3D (using sprite sheets or individual textures)
 var animation_textures = {
@@ -28,12 +28,26 @@ var grass_textures = [
 ]
 
 func _ready() -> void:
+	# Get reference to map UI
+	var main_node = get_tree().root.get_node_or_null("Main")
+	if main_node:
+		map_ui = main_node.get_node_or_null("MapUI")
+	
 	_generate_random_grass()
 	_load_map()
 
 
 func _generate_random_grass() -> void:
-	var grass_container = get_tree().root.get_node("Main/GrassContainer")
+	var main_node = get_tree().root.get_node_or_null("Main")
+	if not main_node:
+		print("Main node not found")
+		return
+	
+	var grass_container = main_node.get_node_or_null("GrassContainer")
+	if not grass_container:
+		print("GrassContainer not found")
+		return
+	
 	var world_size = 100
 	var grass_count = 50
 	var min_distance_from_center = 3.0
@@ -50,26 +64,29 @@ func _generate_random_grass() -> void:
 		grass.position = Vector3(x, 0.5, z)
 		grass.scale = Vector3(randf_range(1.5, 2.2), randf_range(1.2, 1.5), 1)
 		grass.texture = grass_textures[randi() % grass_textures.size()]
-		grass.billboard = Sprite3D.BILLBOARD_ENABLED
+		grass.billboard = 2  # BILLBOARD_FIXED_Y
 		grass_container.add_child(grass)
 
 
 func _load_map() -> void:
+	if not map_ui:
+		return
+	
 	# Try to load map texture - create a simple placeholder if it doesn't exist
 	var map_path = "res://assets/map.png"
 	if ResourceLoader.exists(map_path):
 		var map_texture = load(map_path)
-		var map_rect = map_ui.get_node("MapPanel/MapTexture")
-		map_rect.texture = map_texture
+		var map_rect = map_ui.get_node_or_null("MapPanel/MapTexture")
+		if map_rect:
+			map_rect.texture = map_texture
 	else:
 		print("Map file not found at: ", map_path)
 
 
 func _physics_process(_delta: float) -> void:
-	# Check for map toggle
-	if Input.is_action_just_pressed("ui_accept"):  # Space key
-		if Input.is_key_pressed(KEY_M):
-			_toggle_map()
+	# Check for map toggle (M key)
+	if Input.is_key_just_pressed(KEY_M):
+		_toggle_map()
 	
 	# Get movement input
 	var move_input := Vector3(
@@ -115,8 +132,9 @@ func _update_animation(move_input: Vector3) -> void:
 
 
 func _toggle_map() -> void:
-	map_visible = !map_visible
-	map_ui.visible = map_visible
+	if map_ui:
+		map_visible = !map_visible
+		map_ui.visible = map_visible
 
 
 func _direction_from_vector(move_input: Vector3) -> String:
