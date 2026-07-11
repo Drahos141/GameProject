@@ -8,6 +8,7 @@ var facing_direction: String = "down"
 var current_animation: String = "idle_down"
 var map_visible: bool = false
 var map_ui: CanvasLayer
+var m_was_pressed: bool = false
 
 # Animation mapping for 3D (using sprite sheets or individual textures)
 var animation_textures = {
@@ -88,8 +89,10 @@ func _load_map() -> void:
 
 func _physics_process(_delta: float) -> void:
 	# Check for map toggle (M key)
-	if Input.is_key_just_pressed(KEY_M):
+	var m_pressed := Input.is_key_pressed(KEY_M)
+	if m_pressed and not m_was_pressed:
 		_toggle_map()
+	m_was_pressed = m_pressed
 	
 	# Get movement input
 	var move_input := Vector3(

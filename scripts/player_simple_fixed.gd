@@ -10,17 +10,8 @@ var is_moving = false
 var last_direction = Vector3.ZERO
 var facing_direction: String = "down"
 
-const PLAYER_ASSET_DIR := "res://assets/player"
 const DIRECTION_KEYS := ["down", "up", "left", "right"]
-const SUPPORTED_IMAGE_EXTENSIONS := ["png", "webp", "svg"]
 const ANIMATION_RELOAD_KEY := KEY_F6
-
-const DIRECTION_ALIASES := {
-	"down": PackedStringArray(["down", "front", "south"]),
-	"up": PackedStringArray(["up", "back", "north"]),
-	"left": PackedStringArray(["left", "west"]),
-	"right": PackedStringArray(["right", "east"])
-}
 
 var player_sprite: AnimatedSprite3D
 
@@ -44,8 +35,11 @@ func _ready() -> void:
 
 
 func _physics_process(_delta: float) -> void:
-	var move_2d := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
-	var input_vector := Vector3(move_2d.x, 0.0, move_2d.y)
+	var input_vector := Vector3.ZERO
+
+	# Arrow keys via input map
+	input_vector.x = Input.get_action_strength("ui_right") - Input.get_action_strength("ui_left")
+	input_vector.z = Input.get_action_strength("ui_down") - Input.get_action_strength("ui_up")
 
 	# WASD fallback in case input actions were modified.
 	if Input.is_key_pressed(KEY_W):
@@ -70,8 +64,14 @@ func _physics_process(_delta: float) -> void:
 	velocity.x = input_vector.x * speed
 	velocity.z = input_vector.z * speed
 	velocity.y = 0
-	
+
+	var previous_position := global_position
 	move_and_slide()
+
+	if input_vector.length_squared() > 0.0 and global_position.distance_to(previous_position) < 0.0001:
+		# Fallback prevents edge cases where the body starts stuck in collision.
+		global_position += input_vector * speed * _delta
+
 	_update_animation(input_vector)
 
 
@@ -119,14 +119,17 @@ func _build_player_animations() -> void:
 	var frames := SpriteFrames.new()
 
 	for direction in DIRECTION_KEYS:
-		_add_animation(frames, "idle_" + direction, _collect_direction_frames("idle_" + direction), idle_fps)
-		_add_animation(frames, "walk_" + direction, _collect_direction_frames("walk_" + direction), walk_fps)
+		var texture := _load_first_existing_texture(_get_direction_texture_candidates(direction))
+		if not texture:
+			continue
+
+		_add_single_frame_animation(frames, "idle_" + direction, texture, idle_fps)
+		_add_single_frame_animation(frames, "walk_" + direction, texture, walk_fps)
 
 	# Fallbacks keep animation robust even if some directions are missing.
 	for direction in DIRECTION_KEYS:
-		_ensure_animation_has_frames(frames, "idle_" + direction, "idle_down")
-		if frames.get_frame_count("walk_" + direction) == 0:
-			_ensure_animation_has_frames(frames, "walk_" + direction, "idle_" + direction)
+		_copy_fallback_animation(frames, "idle_" + direction, "idle_down")
+		_copy_fallback_animation(frames, "walk_" + direction, "idle_" + direction)
 
 	player_sprite.sprite_frames = frames
 
@@ -134,19 +137,16 @@ func _build_player_animations() -> void:
 		_fit_sprite_to_world_height(frames.get_frame_texture("idle_down", 0))
 
 
-func _add_animation(frames: SpriteFrames, animation_name: String, textures: Array, fps: float) -> void:
+func _add_single_frame_animation(frames: SpriteFrames, animation_name: String, texture: Texture2D, fps: float) -> void:
 	if not frames.has_animation(animation_name):
 		frames.add_animation(animation_name)
 
 	frames.set_animation_loop(animation_name, true)
 	frames.set_animation_speed(animation_name, fps)
-
-	for texture in textures:
-		if texture is Texture2D:
-			frames.add_frame(animation_name, texture)
+	frames.add_frame(animation_name, texture)
 
 
-func _ensure_animation_has_frames(frames: SpriteFrames, animation_name: String, fallback_animation: String) -> void:
+func _copy_fallback_animation(frames: SpriteFrames, animation_name: String, fallback_animation: String) -> void:
 	if not frames.has_animation(animation_name) or not frames.has_animation(fallback_animation):
 		return
 	if frames.get_frame_count(animation_name) > 0:
@@ -158,98 +158,46 @@ func _ensure_animation_has_frames(frames: SpriteFrames, animation_name: String, 
 			frames.add_frame(animation_name, texture)
 
 
-func _collect_direction_frames(animation_prefix: String) -> Array:
-	var frame_candidates: Array = []
-	var file_names := DirAccess.get_files_at(PLAYER_ASSET_DIR)
+func _get_direction_texture_candidates(direction: String) -> PackedStringArray:
+	match direction:
+		"down":
+			return PackedStringArray([
+				"res://assets/player/elf_down.png",
+				"res://assets/player/idle_down.png",
+				"res://assets/player/idle_down.svg"
+			])
+		"up":
+			return PackedStringArray([
+				"res://assets/player/elf_up.png",
+				"res://assets/player/idle_up.png",
+				"res://assets/player/idle_up.svg"
+			])
+		"left":
+			return PackedStringArray([
+				"res://assets/player/elf_left.png",
+				"res://assets/player/idle_left.png",
+				"res://assets/player/idle_left.svg"
+			])
+		"right":
+			return PackedStringArray([
+				"res://assets/player/elf_right.png",
+				"res://assets/player/idle_right.png",
+				"res://assets/player/idle_right.svg"
+			])
+		_:
+			return PackedStringArray([])
 
-	for file_name in file_names:
-		var extension := file_name.get_extension().to_lower()
-		if not SUPPORTED_IMAGE_EXTENSIONS.has(extension):
+
+func _load_first_existing_texture(paths: PackedStringArray) -> Texture2D:
+	for path in paths:
+		if not ResourceLoader.exists(path):
 			continue
 
-		var base_name := file_name.get_basename()
-		var frame_index := _parse_frame_index(base_name, animation_prefix)
-		if frame_index < 0:
-			continue
-
-		frame_candidates.append({
-			"index": frame_index,
-			"path": PLAYER_ASSET_DIR + "/" + file_name
-		})
-
-	frame_candidates.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		return int(a["index"]) < int(b["index"])
-	)
-
-	var textures: Array = []
-	for candidate in frame_candidates:
-		var loaded_resource := load(String(candidate["path"]))
+		var loaded_resource := load(path)
 		if loaded_resource is Texture2D:
-			textures.append(loaded_resource)
+			return loaded_resource
 
-	return textures
-
-
-func _parse_frame_index(base_name: String, animation_prefix: String) -> int:
-	var parsed_from_alias := _parse_alias_frame_index(base_name, animation_prefix)
-	if parsed_from_alias >= 0:
-		return parsed_from_alias
-
-	if base_name == animation_prefix:
-		return 0
-
-	var underbar_prefix := animation_prefix + "_"
-	if base_name.begins_with(underbar_prefix):
-		var underbar_suffix := base_name.substr(underbar_prefix.length())
-		if underbar_suffix.is_valid_int():
-			return int(underbar_suffix)
-		return -1
-
-	if base_name.begins_with(animation_prefix):
-		var suffix := base_name.substr(animation_prefix.length())
-		if suffix.is_valid_int():
-			return int(suffix)
-
-	return -1
-
-
-func _parse_alias_frame_index(base_name: String, animation_prefix: String) -> int:
-	if not animation_prefix.contains("_"):
-		return -1
-
-	var parts := animation_prefix.split("_")
-	if parts.size() != 2:
-		return -1
-
-	var state := parts[0]
-	var direction := parts[1]
-	var aliases: PackedStringArray = DIRECTION_ALIASES.get(direction, PackedStringArray([direction]))
-
-	for alias in aliases:
-		var state_alias_prefixes := PackedStringArray([
-			state + "_" + alias,
-			alias + "_" + state,
-			"elf_" + alias,
-			"elf" + alias,
-			alias
-		])
-
-		for prefix in state_alias_prefixes:
-			if base_name == prefix:
-				return 0
-
-			var underbar_prefix := prefix + "_"
-			if base_name.begins_with(underbar_prefix):
-				var underbar_suffix := base_name.substr(underbar_prefix.length())
-				if underbar_suffix.is_valid_int():
-					return int(underbar_suffix)
-
-			if base_name.begins_with(prefix):
-				var compact_suffix := base_name.substr(prefix.length())
-				if compact_suffix.is_valid_int():
-					return int(compact_suffix)
-
-	return -1
+	return null
 
 
 func _fit_sprite_to_world_height(texture: Texture2D) -> void:
