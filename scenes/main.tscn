@@ -1,125 +1,99 @@
 [gd_scene format=3 uid="uid://d1j3ljf87gghk"]
 
-[ext_resource type="Script" path="res://scripts/player_simple_fixed.gd" id="1_player"]
-[ext_resource type="Texture2D" uid="uid://do0x8ck5d42kg" path="res://assets/player/idle_down.svg" id="2_pd1"]
-[ext_resource type="Texture2D" path="res://assets/objects/grass1.png" id="3_grass1"]
-[ext_resource type="Texture2D" path="res://assets/objects/grass2.png" id="4_grass2"]
+[ext_resource type="Script" uid="uid://3xhoawqwp31n" path="res://scripts/player_simple_fixed.gd" id="1_player"]
+[ext_resource type="Texture2D" uid="uid://qwxlf0invsx8" path="res://assets/objects/grass1.png" id="3_grass1"]
+[ext_resource type="Texture2D" uid="uid://dgmvyucyvrotm" path="res://assets/objects/grass2.png" id="4_grass2"]
 [ext_resource type="Texture2D" uid="uid://x8jb0ju761wn" path="res://assets/objects/firePlace.png" id="5_fire"]
 
-[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
-radius = 0.5
-height = 1.6
+[sub_resource type="Environment" id="Env_1"]
+background_color = Color(1, 1, 1, 1)
+ambient_light_source = 1
+ambient_light_energy = 2.0
 
 [sub_resource type="StandardMaterial3D" id="Material_ground"]
 diffuse_mode = 3
-albedo_color = Color(1, 1, 1, 1)
 
-[sub_resource type="Environment" id="Env_1"]
-ambient_light_source = 1
-ambient_light_energy = 2.0
-background_mode = 0
-background_color = Color(1, 1, 1, 1)
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
+height = 1.6
 
-[node name="Main" type="Node3D"]
+[node name="Main" type="Node3D" unique_id=1660219694]
 
-[node name="Environment" type="WorldEnvironment" parent="."]
+[node name="Environment" type="WorldEnvironment" parent="." unique_id=997110857]
 environment = SubResource("Env_1")
 
-[node name="Light" type="DirectionalLight3D" parent="."]
+[node name="Light" type="DirectionalLight3D" parent="." unique_id=577033395]
 transform = Transform3D(-0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, 0.75, -0.433013, 0, 10, 0)
-energy_multiplier = 2.0
 
-[node name="Ground" type="CSGBox3D" parent="."]
-position = Vector3(0, -0.1, 0)
+[node name="Ground" type="CSGBox3D" parent="." unique_id=1487213335]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
 size = Vector3(500, 0.2, 500)
 material = SubResource("Material_ground")
 
-[node name="FirePlace" type="Sprite3D" parent="."]
-position = Vector3(0, 0.5, -10)
-scale = Vector3(1, 1, 1)
+[node name="FirePlace" type="Sprite3D" parent="." unique_id=1764514255]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -10)
+billboard = 2
 texture = ExtResource("5_fire")
-billboard = 2
 
-[node name="Grass1" type="Sprite3D" parent="."]
-position = Vector3(-10, 0.5, -10)
-scale = Vector3(1, 1, 1)
+[node name="Grass1" type="Sprite3D" parent="." unique_id=247292911]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0.5, -10)
+billboard = 2
 texture = ExtResource("3_grass1")
-billboard = 2
 
-[node name="Grass2" type="Sprite3D" parent="."]
-position = Vector3(10, 0.5, -10)
-scale = Vector3(1, 1, 1)
+[node name="Grass2" type="Sprite3D" parent="." unique_id=158083815]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0.5, -10)
+billboard = 2
 texture = ExtResource("4_grass2")
-billboard = 2
 
-[node name="Grass3" type="Sprite3D" parent="."]
-position = Vector3(-10, 0.5, 10)
-scale = Vector3(1, 1, 1)
+[node name="Grass3" type="Sprite3D" parent="." unique_id=1287597996]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0.5, 10)
+billboard = 2
 texture = ExtResource("3_grass1")
-billboard = 2
 
-[node name="Grass4" type="Sprite3D" parent="."]
-position = Vector3(10, 0.5, 10)
-scale = Vector3(1, 1, 1)
+[node name="Grass4" type="Sprite3D" parent="." unique_id=1314518909]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0.5, 10)
+billboard = 2
 texture = ExtResource("4_grass2")
-billboard = 2
 
-[node name="Player" type="CharacterBody3D" parent="."]
-position = Vector3(0, 0, 0)
+[node name="Player" type="CharacterBody3D" parent="." unique_id=823573067]
 script = ExtResource("1_player")
 
-[node name="Collision" type="CollisionShape3D" parent="Player"]
+[node name="Collision" type="CollisionShape3D" parent="Player" unique_id=2052729860]
 shape = SubResource("CapsuleShape3D_1")
 
-[node name="Sprite" type="Sprite3D" parent="Player"]
-texture = ExtResource("2_pd1")
-billboard = 2
+[node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="Player" unique_id=1661047250]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 1, 0, 0, 0)
 pixel_size = 0.05
-scale = Vector3(3, 3, 1)
+billboard = 2
 
-[node name="Camera" type="Camera3D" parent="Player"]
-position = Vector3(5, 8, 5)
-rotation = Vector3(-0.5, 0.785, 0)
+[node name="Camera" type="Camera3D" parent="Player" unique_id=2052965845]
+transform = Transform3D(0.7073882, -0.33887005, 0.62029743, 0, 0.87758255, 0.47942555, -0.7068252, -0.33914, 0.62079155, 5, 8, 5)
 fov = 70.0
 
-[node name="UI" type="CanvasLayer" parent="."]
+[node name="UI" type="CanvasLayer" parent="." unique_id=643601911]
 layer = 100
 
-[node name="MinimapButton" type="Button" parent="UI"]
-anchors_left = 1.0
-anchors_top = 0.0
-anchors_right = 1.0
-anchors_bottom = 0.0
+[node name="MinimapButton" type="Button" parent="UI" unique_id=274634986]
 offset_left = -120.0
 offset_top = 10.0
 offset_right = -10.0
 offset_bottom = 60.0
 text = "Map"
 
-[node name="MinimapPanel" type="Panel" parent="UI"]
+[node name="MinimapPanel" type="Panel" parent="UI" unique_id=1261394085]
 visible = false
-anchors_left = 0.5
-anchors_top = 0.5
-anchors_right = 0.5
-anchors_bottom = 0.5
 offset_left = -200.0
 offset_top = -200.0
 offset_right = 200.0
 offset_bottom = 200.0
 
-[node name="MinimapImage" type="TextureRect" parent="UI/MinimapPanel"]
-anchor_left = 0.0
-anchor_top = 0.0
+[node name="MinimapImage" type="TextureRect" parent="UI/MinimapPanel" unique_id=1722425441]
+layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 expand_mode = 1
-stretch_mode = 0
 
-[node name="CloseButton" type="Button" parent="UI/MinimapPanel"]
-anchors_left = 1.0
-anchors_top = 0.0
-anchors_right = 1.0
-anchors_bottom = 0.0
+[node name="CloseButton" type="Button" parent="UI/MinimapPanel" unique_id=1441150190]
+layout_mode = 0
 offset_left = -30.0
 offset_top = 5.0
 offset_right = -5.0
