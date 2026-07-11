@@ -15,9 +15,18 @@ const DIRECTION_KEYS := ["down", "up", "left", "right"]
 const SUPPORTED_IMAGE_EXTENSIONS := ["png", "webp", "svg"]
 const ANIMATION_RELOAD_KEY := KEY_F6
 
-@onready var player_sprite: AnimatedSprite3D = $AnimatedSprite3D
+const DIRECTION_ALIASES := {
+	"down": PackedStringArray(["down", "front", "south"]),
+	"up": PackedStringArray(["up", "back", "north"]),
+	"left": PackedStringArray(["left", "west"]),
+	"right": PackedStringArray(["right", "east"])
+}
+
+var player_sprite: AnimatedSprite3D
 
 func _ready() -> void:
+	player_sprite = get_node_or_null("AnimatedSprite3D") as AnimatedSprite3D
+
 	# Connect UI buttons.
 	var minimap_btn = get_tree().root.get_node_or_null("Main/UI/MinimapButton")
 	var close_btn = get_tree().root.get_node_or_null("Main/UI/MinimapPanel/CloseButton")
@@ -35,9 +44,10 @@ func _ready() -> void:
 
 
 func _physics_process(_delta: float) -> void:
-	var input_vector = Vector3.ZERO
-	
-	# Collect all input
+	var move_2d := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
+	var input_vector := Vector3(move_2d.x, 0.0, move_2d.y)
+
+	# WASD fallback in case input actions were modified.
 	if Input.is_key_pressed(KEY_W):
 		input_vector.z -= 1.0
 	if Input.is_key_pressed(KEY_S):
@@ -47,18 +57,8 @@ func _physics_process(_delta: float) -> void:
 	if Input.is_key_pressed(KEY_D):
 		input_vector.x += 1.0
 	
-	# Arrow keys
-	if Input.is_key_pressed(KEY_UP):
-		input_vector.z -= 1.0
-	if Input.is_key_pressed(KEY_DOWN):
-		input_vector.z += 1.0
-	if Input.is_key_pressed(KEY_LEFT):
-		input_vector.x -= 1.0
-	if Input.is_key_pressed(KEY_RIGHT):
-		input_vector.x += 1.0
-	
 	# Normalize input
-	if input_vector.length() > 0:
+	if input_vector.length_squared() > 0.0:
 		input_vector = input_vector.normalized()
 		is_moving = true
 		last_direction = input_vector
@@ -191,6 +191,10 @@ func _collect_direction_frames(animation_prefix: String) -> Array:
 
 
 func _parse_frame_index(base_name: String, animation_prefix: String) -> int:
+	var parsed_from_alias := _parse_alias_frame_index(base_name, animation_prefix)
+	if parsed_from_alias >= 0:
+		return parsed_from_alias
+
 	if base_name == animation_prefix:
 		return 0
 
@@ -205,6 +209,45 @@ func _parse_frame_index(base_name: String, animation_prefix: String) -> int:
 		var suffix := base_name.substr(animation_prefix.length())
 		if suffix.is_valid_int():
 			return int(suffix)
+
+	return -1
+
+
+func _parse_alias_frame_index(base_name: String, animation_prefix: String) -> int:
+	if not animation_prefix.contains("_"):
+		return -1
+
+	var parts := animation_prefix.split("_")
+	if parts.size() != 2:
+		return -1
+
+	var state := parts[0]
+	var direction := parts[1]
+	var aliases: PackedStringArray = DIRECTION_ALIASES.get(direction, PackedStringArray([direction]))
+
+	for alias in aliases:
+		var state_alias_prefixes := PackedStringArray([
+			state + "_" + alias,
+			alias + "_" + state,
+			"elf_" + alias,
+			"elf" + alias,
+			alias
+		])
+
+		for prefix in state_alias_prefixes:
+			if base_name == prefix:
+				return 0
+
+			var underbar_prefix := prefix + "_"
+			if base_name.begins_with(underbar_prefix):
+				var underbar_suffix := base_name.substr(underbar_prefix.length())
+				if underbar_suffix.is_valid_int():
+					return int(underbar_suffix)
+
+			if base_name.begins_with(prefix):
+				var compact_suffix := base_name.substr(prefix.length())
+				if compact_suffix.is_valid_int():
+					return int(compact_suffix)
 
 	return -1
 
