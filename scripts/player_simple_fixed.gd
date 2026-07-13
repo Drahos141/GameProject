@@ -9,6 +9,7 @@ extends CharacterBody3D
 var is_moving = false
 var last_direction = Vector3.ZERO
 var facing_direction: String = "down"
+var controls_enabled: bool = true
 
 const DIRECTION_KEYS := ["down", "up", "left", "right"]
 const ANIMATION_RELOAD_KEY := KEY_F6
@@ -35,6 +36,12 @@ func _ready() -> void:
 
 
 func _physics_process(_delta: float) -> void:
+	if not controls_enabled:
+		velocity = Vector3.ZERO
+		move_and_slide()
+		_update_animation(Vector3.ZERO)
+		return
+
 	var input_vector := Vector3.ZERO
 
 	# Arrow keys via input map
@@ -218,12 +225,9 @@ func _load_map_image() -> void:
 			var map_texture = load(map_path)
 			image_rect.texture = map_texture
 		else:
-			# Create placeholder if file doesn't exist
-			# Create a simple white texture as placeholder
-			var placeholder = Image.new()
-			placeholder.create(200, 200, false, Image.FORMAT_RGB8)
+			var placeholder := Image.create(200, 200, false, Image.FORMAT_RGB8)
 			placeholder.fill(Color.WHITE)
-			var texture = ImageTexture.create_from_image(placeholder)
+			var texture := ImageTexture.create_from_image(placeholder)
 			image_rect.texture = texture
 
 
@@ -237,3 +241,10 @@ func _on_close_pressed() -> void:
 	var panel = get_tree().root.get_node_or_null("Main/UI/MinimapPanel")
 	if panel:
 		panel.visible = false
+
+
+func set_controls_enabled(value: bool) -> void:
+	controls_enabled = value
+	if not controls_enabled:
+		velocity = Vector3.ZERO
+		_update_animation(Vector3.ZERO)

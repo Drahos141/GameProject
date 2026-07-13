@@ -1,102 +1,309 @@
 [gd_scene format=3 uid="uid://d1j3ljf87gghk"]
 
 [ext_resource type="Script" uid="uid://3xhoawqwp31n" path="res://scripts/player_simple_fixed.gd" id="1_player"]
+[ext_resource type="Script" uid="uid://cp2vqq4ul7m8" path="res://scripts/main_world.gd" id="1_world"]
 [ext_resource type="Texture2D" uid="uid://qwxlf0invsx8" path="res://assets/objects/grass1.png" id="3_grass1"]
 [ext_resource type="Texture2D" uid="uid://dgmvyucyvrotm" path="res://assets/objects/grass2.png" id="4_grass2"]
 [ext_resource type="Texture2D" uid="uid://x8jb0ju761wn" path="res://assets/objects/firePlace.png" id="5_fire"]
 
 [sub_resource type="Environment" id="Env_1"]
-background_color = Color(1, 1, 1, 1)
+background_mode = 2
+background_color = Color(0.83, 0.92, 1, 1)
 ambient_light_source = 1
-ambient_light_energy = 2.0
+ambient_light_color = Color(0.98, 0.99, 1, 1)
+ambient_light_energy = 1.2
 
-[sub_resource type="StandardMaterial3D" id="Material_ground"]
-diffuse_mode = 3
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jyhfs"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_ground"]
+material = SubResource("StandardMaterial3D_jyhfs")
+size = Vector3(400, 0.4, 400)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
+size = Vector3(400, 0.4, 400)
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
-height = 1.6
+radius = 0.45
+height = 1.2
 
-[node name="Main" type="Node3D" unique_id=1660219694]
+[node name="Main" type="Node3D" unique_id=1552722400]
+script = ExtResource("1_world")
 
-[node name="Environment" type="WorldEnvironment" parent="." unique_id=997110857]
+[node name="Environment" type="WorldEnvironment" parent="." unique_id=1592570704]
 environment = SubResource("Env_1")
 
-[node name="Light" type="DirectionalLight3D" parent="." unique_id=577033395]
-transform = Transform3D(-0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, 0.75, -0.433013, 0, 10, 0)
+[node name="Light" type="DirectionalLight3D" parent="." unique_id=785278143]
+transform = Transform3D(0.81915206, -0.45198438, 0.35312894, 0, 0.6156615, 0.7880107, -0.57357645, -0.6455006, 0.5043204, 0, 0, 0)
+light_energy = 1.6
+shadow_enabled = true
 
-[node name="Ground" type="CSGBox3D" parent="." unique_id=1487213335]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
-size = Vector3(500, 0.2, 500)
-material = SubResource("Material_ground")
+[node name="Ground" type="StaticBody3D" parent="." unique_id=1707294005]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, 0)
 
-[node name="FirePlace" type="Sprite3D" parent="." unique_id=1764514255]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -10)
+[node name="GroundMesh" type="MeshInstance3D" parent="Ground" unique_id=943790742]
+mesh = SubResource("BoxMesh_ground")
+
+[node name="GroundCollision" type="CollisionShape3D" parent="Ground" unique_id=73635160]
+shape = SubResource("BoxShape3D_ground")
+
+[node name="Props" type="Node3D" parent="." unique_id=750342685]
+
+[node name="FirePlace" type="Sprite3D" parent="Props" unique_id=2076850223]
+transform = Transform3D(2.4, 0, 0, 0, 2.4, 0, 0, 0, 1, 0, 1.2, -3)
+pixel_size = 0.001
 billboard = 2
 texture = ExtResource("5_fire")
 
-[node name="Grass1" type="Sprite3D" parent="." unique_id=247292911]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0.5, -10)
+[node name="Grass1" type="Sprite3D" parent="Props" unique_id=441785426]
+transform = Transform3D(1.8, 0, 0, 0, 1.8, 0, 0, 0, 1, -6, 0.9, -5)
 billboard = 2
 texture = ExtResource("3_grass1")
 
-[node name="Grass2" type="Sprite3D" parent="." unique_id=158083815]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0.5, -10)
+[node name="Grass2" type="Sprite3D" parent="Props" unique_id=701121518]
+transform = Transform3D(1.6, 0, 0, 0, 1.6, 0, 0, 0, 1, 5, 0.9, -4)
 billboard = 2
 texture = ExtResource("4_grass2")
 
-[node name="Grass3" type="Sprite3D" parent="." unique_id=1287597996]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0.5, 10)
+[node name="Grass3" type="Sprite3D" parent="Props" unique_id=1692321013]
+transform = Transform3D(1.8, 0, 0, 0, 1.8, 0, 0, 0, 1, 8, 0.9, 5)
 billboard = 2
 texture = ExtResource("3_grass1")
 
-[node name="Grass4" type="Sprite3D" parent="." unique_id=1314518909]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0.5, 10)
+[node name="Grass4" type="Sprite3D" parent="Props" unique_id=1674396556]
+transform = Transform3D(1.6, 0, 0, 0, 1.6, 0, 0, 0, 1, -8, 0.9, 4)
 billboard = 2
 texture = ExtResource("4_grass2")
 
-[node name="Player" type="CharacterBody3D" parent="." unique_id=823573067]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+[node name="Grass5" type="Sprite3D" parent="Props" unique_id=2063434032]
+transform = Transform3D(1.7, 0, 0, 0, 1.7, 0, 0, 0, 1, 10, 0.9, 1)
+billboard = 2
+texture = ExtResource("3_grass1")
+
+[node name="GeneratedGrass" type="Node3D" parent="." unique_id=101551079]
+
+[node name="GeneratedProps" type="Node3D" parent="." unique_id=1273559007]
+
+[node name="GeneratedEnemies" type="Node3D" parent="." unique_id=958636866]
+
+[node name="EnemyWaveTimer" type="Timer" parent="." unique_id=1520680245]
+wait_time = 14.0
+one_shot = true
+
+[node name="Player" type="CharacterBody3D" parent="." unique_id=52147258]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4)
 script = ExtResource("1_player")
 
-[node name="Collision" type="CollisionShape3D" parent="Player" unique_id=2052729860]
+[node name="Collision" type="CollisionShape3D" parent="Player" unique_id=1451966579]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
 shape = SubResource("CapsuleShape3D_1")
 
-[node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="Player" unique_id=1661047250]
-transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 1, 0, 0, 0)
-pixel_size = 0.05
+[node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="Player" unique_id=2065964196]
+transform = Transform3D(2.2, 0, 0, 0, 2.2, 0, 0, 0, 1, 0, 1, 0)
+pixel_size = 0.02
 billboard = 2
 
-[node name="Camera" type="Camera3D" parent="Player" unique_id=2052965845]
-transform = Transform3D(0.7073882, -0.33887005, 0.62029743, 0, 0.87758255, 0.47942555, -0.7068252, -0.33914, 0.62079155, 5, 8, 5)
-fov = 70.0
+[node name="Camera" type="Camera3D" parent="Player" unique_id=263678631]
+transform = Transform3D(1, 0, 0, 0, 0.64278764, 0.76604444, 0, -0.76604444, 0.64278764, 0, 12, 10)
+current = true
+fov = 55.0
 
-[node name="UI" type="CanvasLayer" parent="." unique_id=643601911]
+[node name="UI" type="CanvasLayer" parent="." unique_id=512405517]
 layer = 100
 
-[node name="MinimapButton" type="Button" parent="UI" unique_id=274634986]
-offset_left = -120.0
-offset_top = 10.0
-offset_right = -10.0
-offset_bottom = 60.0
+[node name="LevelLabel" type="Label" parent="UI" unique_id=1156348098]
+offset_left = 20.0
+offset_top = 18.0
+offset_right = 280.0
+offset_bottom = 52.0
+theme_override_font_sizes/font_size = 24
+text = "LEVEL 1"
+
+[node name="DayNightLabel" type="Label" parent="UI" unique_id=136751825]
+offset_left = 20.0
+offset_top = 54.0
+offset_right = 320.0
+offset_bottom = 92.0
+theme_override_font_sizes/font_size = 24
+text = "DAY 02:00"
+
+[node name="GatherHintLabel" type="Label" parent="UI"]
+visible = false
+offset_left = 20.0
+offset_top = 94.0
+offset_right = 420.0
+offset_bottom = 132.0
+theme_override_font_sizes/font_size = 20
+text = "Press E to gather grass"
+
+[node name="HealthLabel" type="Label" parent="UI"]
+offset_left = 20.0
+offset_top = 132.0
+offset_right = 280.0
+offset_bottom = 168.0
+theme_override_font_sizes/font_size = 24
+text = "HEALTH 10/10"
+
+[node name="MinimapButton" type="Button" parent="UI" unique_id=179226459]
+offset_left = 1140.0
+offset_top = 16.0
+offset_right = 1248.0
+offset_bottom = 56.0
 text = "Map"
 
-[node name="MinimapPanel" type="Panel" parent="UI" unique_id=1261394085]
+[node name="InventoryButton" type="Button" parent="UI"]
+offset_left = 1000.0
+offset_top = 16.0
+offset_right = 1132.0
+offset_bottom = 56.0
+text = "Inventory"
+
+[node name="BuildButton" type="Button" parent="UI"]
+offset_left = 860.0
+offset_top = 16.0
+offset_right = 992.0
+offset_bottom = 56.0
+text = "Build"
+
+[node name="MinimapPanel" type="Panel" parent="UI" unique_id=1092186490]
 visible = false
-offset_left = -200.0
-offset_top = -200.0
-offset_right = 200.0
-offset_bottom = 200.0
+offset_left = 930.0
+offset_top = 70.0
+offset_right = 1248.0
+offset_bottom = 388.0
 
-[node name="MinimapImage" type="TextureRect" parent="UI/MinimapPanel" unique_id=1722425441]
+[node name="MinimapImage" type="TextureRect" parent="UI/MinimapPanel" unique_id=1514490199]
 layout_mode = 0
-anchor_right = 1.0
-anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 36.0
+offset_right = 306.0
+offset_bottom = 306.0
 expand_mode = 1
+stretch_mode = 5
 
-[node name="CloseButton" type="Button" parent="UI/MinimapPanel" unique_id=1441150190]
+[node name="CloseButton" type="Button" parent="UI/MinimapPanel" unique_id=1006727040]
 layout_mode = 0
-offset_left = -30.0
-offset_top = 5.0
-offset_right = -5.0
+offset_left = 280.0
+offset_top = 8.0
+offset_right = 306.0
 offset_bottom = 30.0
 text = "X"
+
+[node name="InventoryPanel" type="Panel" parent="UI"]
+visible = false
+offset_left = 930.0
+offset_top = 70.0
+offset_right = 1248.0
+offset_bottom = 250.0
+
+[node name="InventoryTitle" type="Label" parent="UI/InventoryPanel"]
+layout_mode = 0
+offset_left = 14.0
+offset_top = 10.0
+offset_right = 192.0
+offset_bottom = 44.0
+theme_override_font_sizes/font_size = 24
+text = "Inventory"
+
+[node name="GrassCountLabel" type="Label" parent="UI/InventoryPanel"]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 70.0
+offset_right = 246.0
+offset_bottom = 108.0
+theme_override_font_sizes/font_size = 22
+text = "Grass: 0"
+
+[node name="RopeCountLabel" type="Label" parent="UI/InventoryPanel"]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 108.0
+offset_right = 246.0
+offset_bottom = 146.0
+theme_override_font_sizes/font_size = 22
+text = "Rope: 0"
+
+[node name="CloseButton" type="Button" parent="UI/InventoryPanel"]
+layout_mode = 0
+offset_left = 280.0
+offset_top = 8.0
+offset_right = 306.0
+offset_bottom = 30.0
+text = "X"
+
+[node name="BuildPanel" type="Panel" parent="UI"]
+visible = false
+offset_left = 600.0
+offset_top = 70.0
+offset_right = 908.0
+offset_bottom = 250.0
+
+[node name="BuildTitle" type="Label" parent="UI/BuildPanel"]
+layout_mode = 0
+offset_left = 14.0
+offset_top = 10.0
+offset_right = 170.0
+offset_bottom = 42.0
+theme_override_font_sizes/font_size = 24
+text = "Build"
+
+[node name="CraftRopeButton" type="Button" parent="UI/BuildPanel"]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 68.0
+offset_right = 188.0
+offset_bottom = 106.0
+text = "Craft Rope (5 Grass)"
+
+[node name="StatusLabel" type="Label" parent="UI/BuildPanel"]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 118.0
+offset_right = 280.0
+offset_bottom = 154.0
+theme_override_font_sizes/font_size = 18
+text = "Need 5 Grass to craft 1 Rope"
+
+[node name="CloseButton" type="Button" parent="UI/BuildPanel"]
+layout_mode = 0
+offset_left = 280.0
+offset_top = 8.0
+offset_right = 306.0
+offset_bottom = 30.0
+text = "X"
+
+[node name="GameOverPanel" type="Panel" parent="UI" unique_id=1798144184]
+visible = false
+offset_left = 420.0
+offset_top = 220.0
+offset_right = 860.0
+offset_bottom = 420.0
+
+[node name="GameOverLabel" type="Label" parent="UI/GameOverPanel" unique_id=2076800157]
+layout_mode = 0
+offset_left = 55.0
+offset_top = 45.0
+offset_right = 385.0
+offset_bottom = 150.0
+theme_override_font_sizes/font_size = 42
+text = "Game Over"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="GameOverHint" type="Label" parent="UI/GameOverPanel" unique_id=641681946]
+layout_mode = 0
+offset_left = 40.0
+offset_top = 120.0
+offset_right = 400.0
+offset_bottom = 178.0
+theme_override_font_sizes/font_size = 20
+text = "Your health reached 0. Restart the scene to try again."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="RestartButton" type="Button" parent="UI/GameOverPanel" unique_id=1028814478]
+layout_mode = 0
+offset_left = 150.0
+offset_top = 150.0
+offset_right = 290.0
+offset_bottom = 188.0
+text = "Restart"
