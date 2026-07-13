@@ -21,6 +21,9 @@ extends Node3D
 @export var player_attack_damage: int = 1
 @export var player_max_health: int = 10
 @export var rope_grass_cost: int = 5
+@export var grass_house_cost: int = 30
+@export var grass_house_duration_seconds: float = 60.0
+@export var grass_house_hide_radius: float = 2.2
 @export var grass_margin: float = 3.0
 @export var keep_clear_radius: float = 3.5
 @export var generation_seed: int = 1337
@@ -54,6 +57,7 @@ const INVALID_SPAWN_POSITION := Vector3(INF, INF, INF)
 @onready var build_status_label: Label = $UI/BuildPanel/StatusLabel
 @onready var gather_hint_label: Label = $UI/GatherHintLabel
 @onready var health_label: Label = $UI/HealthLabel
+@onready var player_camera: Camera3D = $Player/Camera
 @onready var world_light: DirectionalLight3D = $Light
 @onready var world_environment: WorldEnvironment = $Environment
 
@@ -66,31 +70,34 @@ var day_night_transitions: int = 0
 var grass_collected_count: int = 0
 var rope_count: int = 0
 var player_health: int = 10
+var build_grass_house_button: Button
+var house_placement_mode: bool = false
+var active_grass_house: Node3D
+var grass_house_expire_time: float = -1.0
+var elapsed_time: float = 0.0
+var is_player_hidden: bool = false
+var _space_was_pressed: bool = false
+var _e_was_pressed: bool = false
 
 
 func _ready() -> void:
 	spawn_rng.seed = generation_seed
-	if restart_button and not restart_button.pressed.is_connected(_on_restart_button_pressed):
-		restart_button.pressed.connect(_on_restart_button_pressed)
-	if wave_timer and not wave_timer.timeout.is_connected(_on_enemy_wave_timer_timeout):
-		wave_timer.timeout.connect(_on_enemy_wave_timer_timeout)
-	if inventory_button and not inventory_button.pressed.is_connected(_on_inventory_button_pressed):
-		inventory_button.pressed.connect(_on_inventory_button_pressed)
-	if inventory_close_button and not inventory_close_button.pressed.is_connected(_on_inventory_close_button_pressed):
-		inventory_close_button.pressed.connect(_on_inventory_close_button_pressed)
-	if build_button and not build_button.pressed.is_connected(_on_build_button_pressed):
-		build_button.pressed.connect(_on_build_button_pressed)
-	if build_close_button and not build_close_button.pressed.is_connected(_on_build_close_button_pressed):
-		build_close_button.pressed.connect(_on_build_close_button_pressed)
-	if build_craft_rope_button and not build_craft_rope_button.pressed.is_connected(_on_build_craft_rope_pressed):
-		build_craft_rope_button.pressed.connect(_on_build_craft_rope_pressed)
+	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	_connect_ui_signals()
+	_ensure_build_house_button()
+	if build_grass_house_button and not build_grass_house_button.pressed.is_connected(_on_build_grass_house_pressed):
+		build_grass_house_button.pressed.connect(_on_build_grass_house_pressed)
 	_reset_progression_state()
 	_generate_world()
 	_update_inventory_ui()
 
 
 func _process(delta: float) -> void:
+	elapsed_time += delta
+	_handle_action_inputs()
 	_update_gather_hint()
+	_update_grass_house_state()
+	_update_player_hide_state()
 
 	if is_game_over or day_night_cycle_duration <= 0.0:
 		return
@@ -102,26 +109,65 @@ func _process(delta: float) -> void:
 		day_night_transitions += 1
 		if day_night_transitions % 2 == 0:
 			current_level += 1
+			if current_level % 2 == 0:
+				_regenerate_grass_for_level(current_level)
+
+		if is_daytime:
+			_clear_enemies()
+		else:
 			_spawn_enemies_for_level(current_level)
+
+		_sync_enemy_targets()
 		_apply_day_night_visuals()
 
 	_update_ui_labels()
 
 
-func _unhandled_input(event: InputEvent) -> void:
+func _input(event: InputEvent) -> void:
 	if is_game_over:
 		return
-	if not (event is InputEventKey):
+
+	if event is InputEventMouseButton:
+		var mouse_event := event as InputEventMouseButton
+		if house_placement_mode and mouse_event.pressed and mouse_event.button_index == MOUSE_BUTTON_RIGHT:
+			house_placement_mode = false
+			_update_build_ui("House placement canceled")
+			return
+		if house_placement_mode and mouse_event.pressed and mouse_event.button_index == MOUSE_BUTTON_LEFT:
+			if get_viewport().gui_get_hovered_control() != null:
+				return
+			_try_place_grass_house_from_screen(mouse_event.position)
+			return
+
+	if event is InputEventKey:
+		var key_event := event as InputEventKey
+		if key_event.pressed and not key_event.echo and key_event.keycode == KEY_ESCAPE and house_placement_mode:
+			house_placement_mode = false
+			_update_build_ui("House placement canceled")
+
+
+func _handle_action_inputs() -> void:
+	if is_game_over:
+		_space_was_pressed = Input.is_key_pressed(KEY_SPACE)
+		_e_was_pressed = Input.is_key_pressed(KEY_E)
 		return
 
-	var key_event := event as InputEventKey
-	if not key_event.pressed or key_event.echo:
-		return
+	if Input.is_key_pressed(KEY_I):
+		_on_inventory_button_pressed()
+	if Input.is_key_pressed(KEY_B):
+		_on_build_button_pressed()
 
-	if key_event.keycode == KEY_E:
+	var space_pressed := Input.is_key_pressed(KEY_SPACE)
+	if space_pressed and not _space_was_pressed:
+		# Space prioritizes attack; if no enemy is in range, it gathers grass.
+		if not _try_attack_nearest_enemy():
+			_try_gather_nearest_grass()
+	_space_was_pressed = space_pressed
+
+	var e_pressed := Input.is_key_pressed(KEY_E)
+	if e_pressed and not _e_was_pressed:
 		_try_gather_nearest_grass()
-	if key_event.keycode == KEY_SPACE:
-		_try_attack_nearest_enemy()
+	_e_was_pressed = e_pressed
 
 
 func _generate_world() -> void:
@@ -153,7 +199,8 @@ func _generate_world() -> void:
 	_generate_trees(rng, ground_size, protected_points)
 	_generate_rocks(rng, ground_size, protected_points)
 	_generate_flowers(rng, ground_size, protected_points)
-	_spawn_enemies_for_level(current_level)
+	if not is_daytime:
+		_spawn_enemies_for_level(current_level)
 
 
 func _reset_progression_state() -> void:
@@ -164,6 +211,10 @@ func _reset_progression_state() -> void:
 	grass_collected_count = 0
 	rope_count = 0
 	player_health = player_max_health
+	elapsed_time = 0.0
+	house_placement_mode = false
+	is_player_hidden = false
+	_clear_active_grass_house()
 	_apply_day_night_visuals()
 	_update_ui_labels()
 	_update_inventory_ui()
@@ -222,7 +273,7 @@ func _update_ui_labels() -> void:
 		day_night_label.text = "%s %02d:%02d" % [phase_text, minutes, seconds]
 
 	if health_label:
-		health_label.text = "HEALTH %d/%d" % [player_health, player_max_health]
+		health_label.text = "HP %d/%d" % [player_health, player_max_health]
 
 
 func _update_inventory_ui() -> void:
@@ -239,10 +290,15 @@ func _update_inventory_ui() -> void:
 func _update_build_ui(status_text: String) -> void:
 	if build_craft_rope_button:
 		build_craft_rope_button.disabled = grass_collected_count < rope_grass_cost
+	if build_grass_house_button:
+		build_grass_house_button.disabled = grass_collected_count < grass_house_cost or house_placement_mode
 
 	if build_status_label:
 		if status_text.is_empty():
-			build_status_label.text = "Need %d Grass to craft 1 Rope" % rope_grass_cost
+			if house_placement_mode:
+				build_status_label.text = "Click ground to place Grass House"
+			else:
+				build_status_label.text = "Need %d Grass for Rope | %d for House" % [rope_grass_cost, grass_house_cost]
 		else:
 			build_status_label.text = status_text
 
@@ -257,26 +313,224 @@ func _update_gather_hint() -> void:
 	gather_hint_label.visible = _find_nearest_grass_in_range(grass_gather_range) != null
 
 
-func _try_gather_nearest_grass() -> void:
+func _try_gather_nearest_grass() -> bool:
 	if not player or not grass_container:
-		return
+		return false
 
 	var nearest_grass := _find_nearest_grass_in_range(grass_gather_range)
+	if not nearest_grass:
+		nearest_grass = _find_nearest_grass_in_range(grass_gather_range * 3.0)
 	if nearest_grass:
 		grass_collected_count += 1
 		nearest_grass.queue_free()
 		_update_inventory_ui()
 		_update_build_ui("")
+		return true
+
+	return false
 
 
-func _try_attack_nearest_enemy() -> void:
-	if rope_count <= 0:
-		_update_build_ui("Craft Rope first (5 Grass)")
-		return
-
+func _try_attack_nearest_enemy() -> bool:
 	var enemy := _find_nearest_enemy_in_range(player_attack_range)
+	if not enemy:
+		enemy = _find_nearest_enemy_in_range(player_attack_range * 2.0)
 	if enemy and enemy.has_method("take_damage"):
 		enemy.take_damage(player_attack_damage)
+		return true
+
+	return false
+
+
+func _connect_ui_signals() -> void:
+	if restart_button and not restart_button.pressed.is_connected(_on_restart_button_pressed):
+		restart_button.pressed.connect(_on_restart_button_pressed)
+
+	if wave_timer and not wave_timer.timeout.is_connected(_on_enemy_wave_timer_timeout):
+		wave_timer.timeout.connect(_on_enemy_wave_timer_timeout)
+
+	if inventory_button and not inventory_button.pressed.is_connected(_on_inventory_button_pressed):
+		inventory_button.pressed.connect(_on_inventory_button_pressed)
+
+	if inventory_close_button and not inventory_close_button.pressed.is_connected(_on_inventory_close_button_pressed):
+		inventory_close_button.pressed.connect(_on_inventory_close_button_pressed)
+
+	if build_button and not build_button.pressed.is_connected(_on_build_button_pressed):
+		build_button.pressed.connect(_on_build_button_pressed)
+
+	if build_close_button and not build_close_button.pressed.is_connected(_on_build_close_button_pressed):
+		build_close_button.pressed.connect(_on_build_close_button_pressed)
+
+	if build_craft_rope_button and not build_craft_rope_button.pressed.is_connected(_on_build_craft_rope_pressed):
+		build_craft_rope_button.pressed.connect(_on_build_craft_rope_pressed)
+
+
+func _ensure_build_house_button() -> void:
+	if not build_panel:
+		return
+
+	build_grass_house_button = build_panel.get_node_or_null("BuildGrassHouseButton") as Button
+	if build_grass_house_button:
+		return
+
+	build_grass_house_button = Button.new()
+	build_grass_house_button.name = "BuildGrassHouseButton"
+	build_grass_house_button.layout_mode = 0
+	build_grass_house_button.offset_left = 18.0
+	build_grass_house_button.offset_top = 108.0
+	build_grass_house_button.offset_right = 230.0
+	build_grass_house_button.offset_bottom = 146.0
+	build_grass_house_button.text = "Build House (30 Grass)"
+	build_panel.add_child(build_grass_house_button)
+
+	if build_status_label:
+		build_status_label.offset_top = 156.0
+		build_status_label.offset_bottom = 194.0
+
+
+func _on_build_grass_house_pressed() -> void:
+	if grass_collected_count < grass_house_cost:
+		_update_build_ui("Not enough Grass for House")
+		return
+
+	house_placement_mode = true
+	_update_build_ui("")
+
+
+func _try_place_grass_house_from_screen(screen_position: Vector2) -> void:
+	if not player_camera or not ground:
+		return
+
+	var ray_origin := player_camera.project_ray_origin(screen_position)
+	var ray_direction := player_camera.project_ray_normal(screen_position)
+	var query := PhysicsRayQueryParameters3D.create(ray_origin, ray_origin + ray_direction * 1000.0)
+	query.collide_with_bodies = true
+	query.collide_with_areas = false
+
+	var result := get_world_3d().direct_space_state.intersect_ray(query)
+	if result.is_empty():
+		_update_build_ui("Click on ground to place House")
+		return
+
+	var collider: Object = result.get("collider")
+	if collider != ground:
+		_update_build_ui("Place House on ground")
+		return
+
+	if grass_collected_count < grass_house_cost:
+		house_placement_mode = false
+		_update_build_ui("Not enough Grass for House")
+		return
+
+	grass_collected_count -= grass_house_cost
+	_update_inventory_ui()
+
+	var position := result.get("position") as Vector3
+	position.y = 0.0
+	_place_grass_house(position)
+	house_placement_mode = false
+	_update_build_ui("House built for 60 seconds")
+
+
+func _place_grass_house(position: Vector3) -> void:
+	_clear_active_grass_house()
+
+	var house := Node3D.new()
+	house.name = "GrassHouse"
+	house.position = position
+
+	var body := MeshInstance3D.new()
+	var body_mesh := BoxMesh.new()
+	body_mesh.size = Vector3(2.8, 1.8, 2.8)
+	body.mesh = body_mesh
+	body.position = Vector3(0.0, 0.9, 0.0)
+	body.material_override = _make_colored_material(Color(0.45, 0.72, 0.28, 1.0), 0.95)
+	house.add_child(body)
+
+	var roof := MeshInstance3D.new()
+	var roof_mesh := PrismMesh.new()
+	roof_mesh.left_to_right = 2.8
+	roof_mesh.size = Vector3(3.2, 1.0, 3.2)
+	roof.mesh = roof_mesh
+	roof.position = Vector3(0.0, 2.0, 0.0)
+	roof.material_override = _make_colored_material(Color(0.36, 0.58, 0.2, 1.0), 0.9)
+	house.add_child(roof)
+
+	var marker := Label3D.new()
+	marker.text = "Safe House"
+	marker.position = Vector3(0.0, 2.8, 0.0)
+	marker.billboard = BaseMaterial3D.BILLBOARD_FIXED_Y
+	house.add_child(marker)
+
+	add_child(house)
+	active_grass_house = house
+	grass_house_expire_time = elapsed_time + grass_house_duration_seconds
+
+
+func _update_grass_house_state() -> void:
+	if not active_grass_house:
+		return
+
+	if elapsed_time >= grass_house_expire_time:
+		_clear_active_grass_house()
+		house_placement_mode = false
+		_update_build_ui("House expired")
+
+
+func _clear_active_grass_house() -> void:
+	if active_grass_house and is_instance_valid(active_grass_house):
+		active_grass_house.queue_free()
+	active_grass_house = null
+	grass_house_expire_time = -1.0
+
+
+func _update_player_hide_state() -> void:
+	var hidden_now := false
+	if player and active_grass_house and is_instance_valid(active_grass_house):
+		hidden_now = player.global_position.distance_to(active_grass_house.global_position) <= grass_house_hide_radius
+
+	if hidden_now == is_player_hidden:
+		return
+
+	is_player_hidden = hidden_now
+	_sync_enemy_targets()
+
+
+func _sync_enemy_targets() -> void:
+	for node in enemy_container.get_children():
+		if not (node is CharacterBody3D):
+			continue
+
+		var enemy := node as CharacterBody3D
+		if is_daytime or is_player_hidden:
+			enemy.set("target", null)
+		else:
+			enemy.set("target", player)
+
+
+func _clear_enemies() -> void:
+	for enemy_node in enemy_container.get_children():
+		enemy_node.queue_free()
+
+
+func _regenerate_grass_for_level(level: int) -> void:
+	if not grass_container or not ground:
+		return
+
+	var ground_size := _get_ground_size()
+	if ground_size.x <= 0.0 or ground_size.y <= 0.0:
+		return
+
+	var protected_points := _get_protected_points()
+	var rng := RandomNumberGenerator.new()
+	rng.seed = generation_seed + level * 7919 + grass_container.get_child_count()
+
+	var regen_count := maxi(24, grass_scatter_count / 3)
+	for _index in range(regen_count):
+		var position := _find_spawn_position(rng, ground_size, protected_points, keep_clear_radius)
+		if position == INVALID_SPAWN_POSITION:
+			continue
+
+		grass_container.add_child(_build_grass_sprite(position, rng))
 
 
 func _find_nearest_enemy_in_range(max_range: float) -> CharacterBody3D:
@@ -654,6 +908,8 @@ func _build_enemy(position: Vector3, rng: RandomNumberGenerator) -> CharacterBod
 
 func _on_enemy_attacked_player(damage: int) -> void:
 	if is_game_over:
+		return
+	if is_daytime or is_player_hidden:
 		return
 
 	player_health = maxi(0, player_health - max(1, damage))

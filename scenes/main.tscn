@@ -17,7 +17,7 @@ ambient_light_energy = 1.2
 
 [sub_resource type="BoxMesh" id="BoxMesh_ground"]
 material = SubResource("StandardMaterial3D_jyhfs")
-size = Vector3(400, 0.4, 400)
+size = Vector3(4000, 0.4, 400)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
 size = Vector3(400, 0.4, 400)
@@ -115,6 +115,7 @@ offset_left = 20.0
 offset_top = 18.0
 offset_right = 280.0
 offset_bottom = 52.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 24
 text = "LEVEL 1"
 
@@ -123,25 +124,28 @@ offset_left = 20.0
 offset_top = 54.0
 offset_right = 320.0
 offset_bottom = 92.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 24
 text = "DAY 02:00"
 
-[node name="GatherHintLabel" type="Label" parent="UI"]
+[node name="GatherHintLabel" type="Label" parent="UI" unique_id=1582808352]
 visible = false
 offset_left = 20.0
 offset_top = 94.0
 offset_right = 420.0
 offset_bottom = 132.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 20
-text = "Press E to gather grass"
+text = "Press Space or E to gather grass"
 
-[node name="HealthLabel" type="Label" parent="UI"]
+[node name="HealthLabel" type="Label" parent="UI" unique_id=669760622]
 offset_left = 20.0
 offset_top = 132.0
 offset_right = 280.0
 offset_bottom = 168.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 24
-text = "HEALTH 10/10"
+text = "HP 10/10"
 
 [node name="MinimapButton" type="Button" parent="UI" unique_id=179226459]
 offset_left = 1140.0
@@ -150,14 +154,14 @@ offset_right = 1248.0
 offset_bottom = 56.0
 text = "Map"
 
-[node name="InventoryButton" type="Button" parent="UI"]
+[node name="InventoryButton" type="Button" parent="UI" unique_id=1071321734]
 offset_left = 1000.0
 offset_top = 16.0
 offset_right = 1132.0
 offset_bottom = 56.0
 text = "Inventory"
 
-[node name="BuildButton" type="Button" parent="UI"]
+[node name="BuildButton" type="Button" parent="UI" unique_id=2050287883]
 offset_left = 860.0
 offset_top = 16.0
 offset_right = 992.0
@@ -188,14 +192,14 @@ offset_right = 306.0
 offset_bottom = 30.0
 text = "X"
 
-[node name="InventoryPanel" type="Panel" parent="UI"]
+[node name="InventoryPanel" type="Panel" parent="UI" unique_id=846572320]
 visible = false
 offset_left = 930.0
 offset_top = 70.0
 offset_right = 1248.0
 offset_bottom = 250.0
 
-[node name="InventoryTitle" type="Label" parent="UI/InventoryPanel"]
+[node name="InventoryTitle" type="Label" parent="UI/InventoryPanel" unique_id=1286113192]
 layout_mode = 0
 offset_left = 14.0
 offset_top = 10.0
@@ -204,25 +208,27 @@ offset_bottom = 44.0
 theme_override_font_sizes/font_size = 24
 text = "Inventory"
 
-[node name="GrassCountLabel" type="Label" parent="UI/InventoryPanel"]
+[node name="GrassCountLabel" type="Label" parent="UI/InventoryPanel" unique_id=555611257]
 layout_mode = 0
 offset_left = 18.0
 offset_top = 70.0
 offset_right = 246.0
 offset_bottom = 108.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 22
 text = "Grass: 0"
 
-[node name="RopeCountLabel" type="Label" parent="UI/InventoryPanel"]
+[node name="RopeCountLabel" type="Label" parent="UI/InventoryPanel" unique_id=698873626]
 layout_mode = 0
 offset_left = 18.0
 offset_top = 108.0
 offset_right = 246.0
 offset_bottom = 146.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 22
 text = "Rope: 0"
 
-[node name="CloseButton" type="Button" parent="UI/InventoryPanel"]
+[node name="CloseButton" type="Button" parent="UI/InventoryPanel" unique_id=762343940]
 layout_mode = 0
 offset_left = 280.0
 offset_top = 8.0
@@ -230,14 +236,14 @@ offset_right = 306.0
 offset_bottom = 30.0
 text = "X"
 
-[node name="BuildPanel" type="Panel" parent="UI"]
+[node name="BuildPanel" type="Panel" parent="UI" unique_id=1484400548]
 visible = false
 offset_left = 600.0
 offset_top = 70.0
 offset_right = 908.0
 offset_bottom = 250.0
 
-[node name="BuildTitle" type="Label" parent="UI/BuildPanel"]
+[node name="BuildTitle" type="Label" parent="UI/BuildPanel" unique_id=1704597992]
 layout_mode = 0
 offset_left = 14.0
 offset_top = 10.0
@@ -246,7 +252,7 @@ offset_bottom = 42.0
 theme_override_font_sizes/font_size = 24
 text = "Build"
 
-[node name="CraftRopeButton" type="Button" parent="UI/BuildPanel"]
+[node name="CraftRopeButton" type="Button" parent="UI/BuildPanel" unique_id=106036191]
 layout_mode = 0
 offset_left = 18.0
 offset_top = 68.0
@@ -254,16 +260,17 @@ offset_right = 188.0
 offset_bottom = 106.0
 text = "Craft Rope (5 Grass)"
 
-[node name="StatusLabel" type="Label" parent="UI/BuildPanel"]
+[node name="StatusLabel" type="Label" parent="UI/BuildPanel" unique_id=1232968167]
 layout_mode = 0
 offset_left = 18.0
 offset_top = 118.0
 offset_right = 280.0
 offset_bottom = 154.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 18
 text = "Need 5 Grass to craft 1 Rope"
 
-[node name="CloseButton" type="Button" parent="UI/BuildPanel"]
+[node name="CloseButton" type="Button" parent="UI/BuildPanel" unique_id=1093566627]
 layout_mode = 0
 offset_left = 280.0
 offset_top = 8.0
